@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://test-website-c2vw.onrender.com/api/:path*"
+    }
+  ]
+}
