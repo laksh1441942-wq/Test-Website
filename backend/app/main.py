@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import Base, engine
-from app.routes import admin, auth, customers, invoices, orders, products, support
+from app.routes import admin, auth, customers, demo, invoices, orders, products, support
 
 app = FastAPI(
     title="VyaparSetu API",
@@ -41,6 +41,7 @@ app.include_router(customers.router)
 app.include_router(support.router)
 app.include_router(admin.router)
 app.include_router(invoices.router)
+app.include_router(demo.router)
 
 
 # ── Startup ───────────────────────────────────────────────────────────
@@ -91,6 +92,18 @@ def security_target_info():
             "WeakPasswordPolicy": {
                 "enabled": settings.DEMO_VULN_WEAK_PASSWORD,
                 "description": "Weak password policy — registration accepts passwords shorter than the recommended minimum",
+            },
+            "ReflectedXSS": {
+                "enabled": settings.DEMO_VULN_REFLECTED_XSS,
+                "description": "Reflected cross-site scripting — the demo echo endpoint reflects query input into HTML",
+            },
+            "OpenRedirect": {
+                "enabled": settings.DEMO_VULN_OPEN_REDIRECT,
+                "description": "Open redirect — the demo redirect endpoint accepts an arbitrary destination URL",
+            },
+            "DebugDisclosure": {
+                "enabled": settings.DEMO_VULN_DEBUG_DISCLOSURE,
+                "description": "Information disclosure — a public demo endpoint reveals environment and implementation details",
             },
         },
     }

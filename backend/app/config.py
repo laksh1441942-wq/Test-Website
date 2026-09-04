@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     DEMO_VULN_HEADERS: bool = True
     DEMO_VULN_INVOICE_IDOR: bool = True
     DEMO_VULN_WEAK_PASSWORD: bool = True
+    DEMO_VULN_REFLECTED_XSS: bool = True
+    DEMO_VULN_OPEN_REDIRECT: bool = True
+    DEMO_VULN_DEBUG_DISCLOSURE: bool = True
 
     class Config:
         env_file = ".env"

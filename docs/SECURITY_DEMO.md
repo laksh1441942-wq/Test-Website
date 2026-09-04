@@ -22,6 +22,9 @@ All vulnerabilities are controlled via environment variables. Set to `"true"` to
 | `DEMO_VULN_HEADERS` | `true` | Missing Security Headers |
 | `DEMO_VULN_INVOICE_IDOR` | `true` | Invoice Object-Level Authorization |
 | `DEMO_VULN_WEAK_PASSWORD` | `true` | Weak Password Policy |
+| `DEMO_VULN_REFLECTED_XSS` | `true` | Reflected Cross-Site Scripting |
+| `DEMO_VULN_OPEN_REDIRECT` | `true` | Unvalidated Redirect |
+| `DEMO_VULN_DEBUG_DISCLOSURE` | `true` | Debug Information Disclosure |
 
 ---
 
@@ -157,6 +160,36 @@ All vulnerabilities are controlled via environment variables. Set to `"true"` to
 **What it does:** When `DEMO_VULN_WEAK_PASSWORD=true`, registration accepts short passwords. This gives password-policy assessments a deterministic finding without exposing any real credentials.
 
 **Remediation:** Require at least 12 characters and apply a password screening policy. Set `DEMO_VULN_WEAK_PASSWORD=false` to enforce the minimum length.
+
+---
+
+## 9. Reflected Cross-Site Scripting - OWASP A03:2021
+
+**Location:** `backend/app/routes/demo.py` — `GET /api/demo/echo?message=...`
+
+**What it does:** The endpoint reflects the `message` query parameter into an HTML response without output encoding. DAST tools can identify this using their standard reflected-XSS checks.
+
+**Remediation:** Encode output or return JSON instead of HTML. Set `DEMO_VULN_REFLECTED_XSS=false` to enable the escaped response.
+
+---
+
+## 10. Unvalidated Redirect - OWASP A01:2021
+
+**Location:** `backend/app/routes/demo.py` — `GET /api/demo/redirect?next_url=...`
+
+**What it does:** The demo endpoint redirects to an arbitrary destination supplied by the caller, allowing scanners to report an open redirect.
+
+**Remediation:** Allow only local paths or a strict allowlist of known origins. Set `DEMO_VULN_OPEN_REDIRECT=false` to enforce local paths.
+
+---
+
+## 11. Debug Information Disclosure - OWASP A05:2021
+
+**Location:** `backend/app/routes/demo.py` — `GET /api/demo/debug/config`
+
+**What it does:** A public endpoint exposes non-secret environment, JWT, database-driver, and enabled-check details. This is intentionally low-risk but useful for DAST information-disclosure demonstrations.
+
+**Remediation:** Remove debug endpoints from deployed builds or require authorization. Set `DEMO_VULN_DEBUG_DISCLOSURE=false` to return `404`.
 
 ---
 
