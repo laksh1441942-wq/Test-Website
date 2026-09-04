@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
+from app.config import settings
 from app.database import get_db
 from app.models.models import User, Customer
 from app.schemas.schemas import (
@@ -17,6 +17,17 @@ from app.security.auth import (
 )
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+
+def validate_registration_password(password: str) -> str:
+    # The intentionally weak branch is useful for password-policy scanners,
+    # but does not bypass hashing or affect existing seeded accounts.
+    if not settings.DEMO_VULN_WEAK_PASSWORD and len(password) < 12:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 12 characters long",
+        )
+    return password
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -54,6 +65,7 @@ def get_me(current_user: User = Depends(get_current_user)):
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 def register(request: RegisterRequest, db: Session = Depends(get_db)):
+    validate_registration_password(request.password)
     existing = db.query(User).filter(User.email == request.email).first()
     if existing:
         raise HTTPException(

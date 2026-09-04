@@ -36,6 +36,8 @@ services:
       DEMO_VULN_ADMIN_AUTH: "true"
       DEMO_VULN_DATA_EXPOSURE: "true"
       DEMO_VULN_HEADERS: "true"
+      DEMO_VULN_INVOICE_IDOR: "true"
+      DEMO_VULN_WEAK_PASSWORD: "true"
     depends_on:
       postgres:
         condition: service_healthy

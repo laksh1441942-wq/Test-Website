@@ -84,5 +84,13 @@ def security_target_info():
                 "enabled": settings.DEMO_VULN_HEADERS,
                 "description": "Missing security headers — no CSP, X-Content-Type-Options, or Referrer-Policy",
             },
+            "InvoiceIDOR": {
+                "enabled": settings.DEMO_VULN_INVOICE_IDOR,
+                "description": "Broken object-level authorization — invoice details can be retrieved by changing the invoice ID",
+            },
+            "WeakPasswordPolicy": {
+                "enabled": settings.DEMO_VULN_WEAK_PASSWORD,
+                "description": "Weak password policy — registration accepts passwords shorter than the recommended minimum",
+            },
         },
     }

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.database import get_db
 from app.models.models import Customer, Invoice, User
 from app.schemas.schemas import InvoiceResponse
@@ -30,5 +31,13 @@ def get_invoice(
     invoice = db.query(Invoice).filter(Invoice.id == invoice_id).first()
     if not invoice:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invoice not found")
+
+    if not settings.DEMO_VULN_INVOICE_IDOR:
+        customer = db.query(Customer).filter(Customer.user_id == current_user.id).first()
+        if not customer or invoice.customer_id != customer.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have access to this invoice",
+            )
 
     return InvoiceResponse.model_validate(invoice)

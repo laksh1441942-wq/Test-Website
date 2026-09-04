@@ -20,6 +20,8 @@ All vulnerabilities are controlled via environment variables. Set to `"true"` to
 | `DEMO_VULN_ADMIN_AUTH` | `true` | Broken Admin Authentication |
 | `DEMO_VULN_DATA_EXPOSURE` | `true` | Sensitive Data Exposure |
 | `DEMO_VULN_HEADERS` | `true` | Missing Security Headers |
+| `DEMO_VULN_INVOICE_IDOR` | `true` | Invoice Object-Level Authorization |
+| `DEMO_VULN_WEAK_PASSWORD` | `true` | Weak Password Policy |
 
 ---
 
@@ -97,14 +99,14 @@ All vulnerabilities are controlled via environment variables. Set to `"true"` to
 
 ## 5. Sensitive Data Exposure - OWASP A02:2021
 
-**Location:** `backend/app/routes/users.py` — `GET /api/users/me`
+**Location:** `backend/app/routes/customers.py` — `GET /api/customers/{customer_id}`
 
-**What it does:** The `/api/users/me` endpoint returns the full user record including `hashed_password`, `phone`, and internal fields. This data is unnecessary for the client and increases the attack surface.
+**What it does:** The `/api/customers/{customer_id}` endpoint returns a full customer record including phone and address fields. This data is unnecessary for general customer lookup and increases the attack surface.
 
 **How to trigger:**
 1. Log in as any user
-2. Call `GET /api/users/me`
-3. Observe that `hashed_password`, `phone`, internal IDs, and timestamps are returned in the response
+2. Call `GET /api/customers/{id}` for a seeded customer
+3. Observe that phone, address, internal IDs, and timestamps are returned in the response
 
 **Remediation:**
 - Create a response schema that excludes sensitive fields (`hashed_password`, `phone`, internal timestamps)
@@ -135,6 +137,26 @@ All vulnerabilities are controlled via environment variables. Set to `"true"` to
 - Add a middleware that sets all recommended security headers on every response
 - Use `X-Frame-Options: DENY` to prevent clickjacking
 - Set `Content-Security-Policy` to restrict script sources
+
+---
+
+## 7. Invoice Object-Level Authorization (Invoice IDOR) - OWASP API1:2023
+
+**Location:** `backend/app/routes/invoices.py` — `GET /api/invoices/{invoice_id}`
+
+**What it does:** When `DEMO_VULN_INVOICE_IDOR=true`, an authenticated user can retrieve another customer's invoice by changing the numeric invoice ID. The endpoint is read-only and uses synthetic invoice data.
+
+**Remediation:** Verify that the invoice belongs to the authenticated user's customer profile and return `403 Forbidden` otherwise. Set `DEMO_VULN_INVOICE_IDOR=false` to enable the fixed behavior.
+
+---
+
+## 8. Weak Password Policy - OWASP A07:2021
+
+**Location:** `backend/app/routes/auth.py` — `POST /api/auth/register`
+
+**What it does:** When `DEMO_VULN_WEAK_PASSWORD=true`, registration accepts short passwords. This gives password-policy assessments a deterministic finding without exposing any real credentials.
+
+**Remediation:** Require at least 12 characters and apply a password screening policy. Set `DEMO_VULN_WEAK_PASSWORD=false` to enforce the minimum length.
 
 ---
 

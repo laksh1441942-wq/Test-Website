@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     DEMO_VULN_ADMIN_AUTH: bool = True
     DEMO_VULN_DATA_EXPOSURE: bool = True
     DEMO_VULN_HEADERS: bool = True
+    DEMO_VULN_INVOICE_IDOR: bool = True
+    DEMO_VULN_WEAK_PASSWORD: bool = True
 
     class Config:
         env_file = ".env"
